@@ -1,7 +1,7 @@
-package ss.net.action
+package ss.base.action
 
-import ss.net.AsyncSocketAction
-import ss.net.util.ipAddress
+import ss.base.AsyncSocketAction
+import ss.base.util.ipAddress
 import java.net.Socket
 import java.nio.channels.AsynchronousSocketChannel
 

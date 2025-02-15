@@ -1,4 +1,4 @@
-package ss.net.action
+package ss.base.action
 
 //import java.io.InputStream
 //import java.io.OutputStream

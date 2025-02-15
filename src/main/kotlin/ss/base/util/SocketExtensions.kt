@@ -1,11 +1,8 @@
-package ss.net.util
+package ss.base.util
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
-import java.nio.charset.Charset
 
 const val CRLF = "\r\n"
 val LF = '\n'.code

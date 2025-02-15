@@ -1,7 +1,7 @@
-package ss.net
+package ss.base
 
-import ss.net.BaseService
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
 import java.nio.channels.AsynchronousSocketChannel
@@ -17,18 +17,18 @@ abstract class Server(
         super.start()
         serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(port))
         launchTask {
+            println("Server running $isRunning")
             while (isRunning) {
-                val clientChannel = acceptClient()
+                println("Server running")
+                val clientChannel = serverChannel
+                        ?.accept()
+                        ?.get()
+                        ?: throw IllegalStateException("Server not initialized")
+                println("Server accepted")
                 launchTask {
                     onAccept(clientChannel)
                 }
             }
-        }
-    }
-
-    private suspend fun acceptClient(): AsynchronousSocketChannel {
-        return withContext(Dispatchers.IO) {
-            serverChannel?.accept()?.get() ?: throw IllegalStateException("Server not initialized")
         }
     }
 
