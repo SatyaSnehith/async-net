@@ -1,0 +1,73 @@
+:root {
+    --primary: #64A1BD;
+    --primary-50: #64A1BD80;
+    --primary-20: #64a1bd33;
+    --fileInfo-width: 270px;
+}
+.lightTheme {
+    --primary-color: var(--primary);
+    --bg-color: #FFFFFF;
+    --card-color: #EFEFEF;
+    --text-color: #212121;
+    --description-color: #666666;
+    --icon-color: #ffffff;
+    --dialog-color: #ffffff;
+    --border-color: #eeeeee;
+    --unselect-color: #CDCDCD;
+    --shadow-color: #888888;
+    --infoKey-color: #666666;
+    --progressBg-color: #E0E0E0;
+    --overlay-color: rgba(0, 0, 0, 0.25);
+}
+.darkTheme {
+    --primary-color: var(--primary);
+    --bg-color: #121212;
+    --card-color: #444444;
+    --text-color: #FFFFFF;
+    --description-color: #CDCDCD;
+    --icon-color: #ffffff;
+    --dialog-color: #212121;
+    --border-color: #404040;
+    --unselect-color: #666666;
+    --shadow-color: #000000;
+    --infoKey-color: #888888;
+    --progressBg-color: #424242;
+    --file-color: #1D1D1D;
+    --hovered-file-color: #242424;
+    --file-inner-color: #181818;
+    --overlay-color: rgba(255, 255, 255, 0.25);
+
+}
+@font-face {
+    font-family: 'roboto';
+    src: url('../fonts/roboto_light-webfont.woff2') format('woff2'),
+         url('../fonts/roboto_light-webfont.woff') format('woff');
+    font-weight: 200;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'roboto';
+    src: url('../fonts/roboto_regular-webfont.woff2') format('woff2'),
+         url('../fonts/roboto_regular-webfont.woff') format('woff');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'roboto';
+    src: url('../fonts/roboto_medium-webfont.woff2') format('woff2'),
+         url('../fonts/roboto_medium-webfont.woff') format('woff');
+    font-weight: 500;
+    font-style: normal;
+}
+
+body {
+    font-family: 'roboto', monospace;
+    margin: 0;
+    max-width: 100%;
+    font-weight: 300;
+    background: var(--bg-color);
+}
+.grid::after {
+    content: "";
+    flex: auto;
+}
