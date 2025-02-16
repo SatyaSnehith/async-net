@@ -1,5 +1,7 @@
 package ss.core
 
+import ss.core.util.ipAddress
+import ss.core.util.log
 import java.net.InetSocketAddress
 import java.nio.channels.AsynchronousServerSocketChannel
 import java.nio.channels.AsynchronousSocketChannel
@@ -14,14 +16,13 @@ abstract class Server(
 
     override suspend fun onStart() {
         serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(port))
-        println("Server running $isRunning")
+        log("Server start on port: $port")
         while (isRunning) {
-            println("Server running")
             val clientChannel = serverChannel
                 ?.accept()
                 ?.get()
                 ?: throw IllegalStateException("Server not initialized")
-            println("Server accepted")
+            log("Socket accepted ${clientChannel.ipAddress}")
             launchTask {
                 onAccept(clientChannel)
             }
