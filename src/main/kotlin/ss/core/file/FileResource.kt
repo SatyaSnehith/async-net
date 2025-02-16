@@ -1,6 +1,7 @@
 package ss.core.file
 
 import java.io.File
+import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Path
@@ -14,9 +15,9 @@ abstract class FileResource(
 
     val mime: String = MimeType.fromName(name)
 
-    abstract fun openWriteChannel(): FileChannel
+    abstract fun openWriteChannel(): AsynchronousFileChannel
 
-    abstract fun openReadChannel(): FileChannel
+    abstract fun openReadChannel(): AsynchronousFileChannel
 
     override fun toString(): String {
         return "File(fileName: $name, length: ${length()})"
@@ -31,12 +32,12 @@ abstract class FileResource(
         fun fromPath(path: Path) : FileResource {
             return object: FileResource(path.name) {
 
-                override fun openWriteChannel(): FileChannel {
-                    return FileChannel.open(path, StandardOpenOption.READ)
+                override fun openWriteChannel(): AsynchronousFileChannel {
+                    return AsynchronousFileChannel.open(path, StandardOpenOption.READ)
                 }
 
-                override fun openReadChannel(): FileChannel {
-                    return FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+                override fun openReadChannel(): AsynchronousFileChannel {
+                    return AsynchronousFileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
                 }
 
                 override fun length(): Long {

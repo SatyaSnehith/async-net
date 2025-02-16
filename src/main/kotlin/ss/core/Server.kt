@@ -1,5 +1,6 @@
 package ss.core
 
+import ss.core.util.awaitOperation
 import ss.core.util.ipAddress
 import ss.core.util.log
 import java.net.InetSocketAddress
@@ -18,10 +19,9 @@ abstract class Server(
         serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(port))
         log("Server start on port: $port")
         while (isRunning) {
-            val clientChannel = serverChannel
-                ?.accept()
-                ?.get()
-                ?: throw IllegalStateException("Server not initialized")
+            val clientChannel:AsynchronousSocketChannel = serverChannel?.awaitOperation {
+                serverChannel?.accept(Unit, it)
+            } ?: throw IllegalStateException("Server not initialized")
             log("Socket accepted ${clientChannel.ipAddress}")
             launchTask {
                 onAccept(clientChannel)
