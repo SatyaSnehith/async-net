@@ -1,11 +1,18 @@
+import kotlinx.coroutines.*
 import ss.TestServer
-import ss.base.Server
 
-fun main(args: Array<String>) {
-    print("Main")
+fun main(args: Array<String>) = runBlocking {
+    println("Main")
+    val scope = CoroutineScope(Dispatchers.IO)
+
     val server = TestServer()
-    server.start()
-    readlnOrNull()  // Wait for user input
+    scope.launch {
+        println("stopped 1")
+        delay(3000)
+        println("stopped 2")
+        server.stop()
+    }
 
-    server.stop()
+    server.start()
+
 }

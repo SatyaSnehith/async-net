@@ -1,12 +1,12 @@
 package ss
 
-import ss.base.Server
+import ss.core.Server
 import java.nio.ByteBuffer
 
 class TestServer : Server(port = 8080) {
     init {
         // Add an async socket action to handle ping
-        asyncSocketActions.add { channel ->
+        channelHandlers.add { channel ->
             // Create buffer for receiving data
             val buffer = ByteBuffer.allocate(4)
             

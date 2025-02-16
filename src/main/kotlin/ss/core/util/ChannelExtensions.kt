@@ -1,4 +1,4 @@
-package ss.base.util
+package ss.core.util
 
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
@@ -6,6 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel
 
 const val CRLF = "\r\n"
 val LF = '\n'.code
+
 val AsynchronousSocketChannel.ipAddress: String
     get() {
         val remoteAddress = remoteAddress as InetSocketAddress

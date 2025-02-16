@@ -1,6 +1,7 @@
-package ss.base
+package ss.core
 
 import kotlinx.coroutines.*
+import ss.core.util.logError
 
 open class BaseService {
     private val job = SupervisorJob()
@@ -9,26 +10,31 @@ open class BaseService {
     var isRunning = false
         private set
 
-    open fun start() {
+    open suspend fun start() {
         if (!isRunning) {
             isRunning = true
-            onStart()
+            try {
+                onStart()
+            } catch (e: Exception) {
+                logError(e, "start()")
+            }
         }
     }
 
-    open fun stop() {
+    open suspend fun stop() {
         if (isRunning) {
+            println("stopped")
             isRunning = false
             scope.coroutineContext.cancelChildren()
             onStop()
         }
     }
 
-    protected open fun onStart() {
+    protected open suspend fun onStart() {
         // Override to implement startup logic
     }
 
-    protected open fun onStop() {
+    protected open suspend fun onStop() {
         // Override to implement shutdown logic
     }
 

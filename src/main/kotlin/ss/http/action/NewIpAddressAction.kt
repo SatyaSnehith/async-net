@@ -1,10 +1,10 @@
-package ss.base.action
+package ss.http.action
 
-import ss.base.AsyncSocketAction
-import ss.base.util.ipAddress
+import ss.core.ChannelHandler
+import ss.core.util.ipAddress
 import java.nio.channels.AsynchronousSocketChannel
 
-abstract class NewIpAddressAction: AsyncSocketAction {
+abstract class NewIpAddressAction: ChannelHandler {
 
     private val ipAddressSet: HashSet<String> = hashSetOf()
 

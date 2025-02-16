@@ -1,11 +1,11 @@
-package ss.base.action
+package ss.http.action
 
-import ss.base.AsyncSocketAction
-import ss.base.util.ipAddress
+import ss.core.ChannelHandler
+import ss.core.util.ipAddress
 import java.net.Socket
 import java.nio.channels.AsynchronousSocketChannel
 
-abstract class BlockedIpAddressAction: AsyncSocketAction {
+abstract class BlockedIpAddressAction: ChannelHandler {
 
     val ipAddressSet: HashSet<String> = hashSetOf()
 
