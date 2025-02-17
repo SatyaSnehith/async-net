@@ -9,12 +9,14 @@ abstract class NewIpAddressAction: ChannelHandler {
     private val ipAddressSet: HashSet<String> = hashSetOf()
 
     @Throws(Exception::class)
-    override suspend fun action(channel: AsynchronousSocketChannel) {
+    override suspend fun action(channel: AsynchronousSocketChannel): ChannelHandler.Result {
         val ipAddress = channel.ipAddress
         if (!ipAddressSet.contains(ipAddress)) {
             ipAddressSet.add(ipAddress)
             onNewIpAddress(channel)
         }
+        return ChannelHandler.Result.CONTINUE
+
     }
 
     abstract fun onNewIpAddress(channel: AsynchronousSocketChannel)

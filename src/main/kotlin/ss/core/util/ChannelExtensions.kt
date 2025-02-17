@@ -3,7 +3,6 @@ package ss.core.util
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import java.nio.channels.AsynchronousChannel
 import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
@@ -15,7 +14,7 @@ import kotlin.coroutines.suspendCoroutine
 const val CRLF = "\r\n"
 val LF = '\n'.code
 
-suspend fun <T> AsynchronousChannel.awaitOperation(
+suspend fun <T> awaitOperation(
     action: (CompletionHandler<T, Unit>) -> Unit,
 ): T {
     return suspendCoroutine { cont ->
@@ -66,19 +65,13 @@ val AsynchronousSocketChannel.ipAddress: String
 suspend fun AsynchronousSocketChannel.readLine(): String {
     val buffer = ByteBuffer.allocate(1) // Read one byte at a time
     val lineBuffer = mutableListOf<Byte>()
-    var bytesRead: Int
 
-    while (true) {
-        bytesRead = this@readLine.readAsync(buffer)
-        if (bytesRead == -1) {
-            break
-        }
+    while (readAsync(buffer) != -1) {
         buffer.flip()
         val byte = buffer.get()
         buffer.clear()
-        if (byte == LF.toByte()) {
-            break
-        }
+
+        if (byte == LF.toByte()) break
         lineBuffer.add(byte)
     }
 
@@ -133,8 +126,11 @@ suspend fun AsynchronousSocketChannel.writeAsync(string: String): Int {
 }
 
 @Throws(IOException::class)
-suspend fun AsynchronousSocketChannel.writeCrlf(string: String = ""): Int {
-    return writeAsync(string + CRLF)
+suspend fun AsynchronousSocketChannel.writeLine(
+    line: String = "",
+    lineSeparator: String = CRLF
+): Int {
+    return writeAsync(line + lineSeparator)
 }
 
 fun String.toByteBuffer(charset: Charset = Charsets.UTF_8): ByteBuffer {

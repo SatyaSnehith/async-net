@@ -10,9 +10,10 @@ abstract class BlockedIpAddressAction: ChannelHandler {
     val ipAddressSet: HashSet<String> = hashSetOf()
 
     @Throws(Exception::class)
-    override suspend fun action(channel: AsynchronousSocketChannel) {
+    override suspend fun action(channel: AsynchronousSocketChannel): ChannelHandler.Result {
         val ipAddress = channel.ipAddress
         if(ipAddressSet.contains(ipAddress)) throw Exception("Blocked IP address: $ipAddress")
+        return ChannelHandler.Result.CONTINUE
     }
 
     abstract fun onBlockedIpAddressAccess(socket: Socket)
