@@ -43,16 +43,75 @@ suspend fun AsynchronousSocketChannel.readAsync(byteBuffer: ByteBuffer): Int {
 }
 
 @Throws(IOException::class)
-suspend fun AsynchronousFileChannel.writeAsync(byteBuffer: ByteBuffer, position: Long): Int {
-    return awaitOperation {
-        write(byteBuffer, position, Unit, it)
+suspend fun AsynchronousFileChannel.writeAsync(
+    byteBuffer: ByteBuffer,
+    position: Long
+): Int {
+    var totalBytesWritten = 0
+
+    while (byteBuffer.hasRemaining()) {
+        val written = awaitOperation {
+            write(byteBuffer, position, Unit, it)
+        }
+
+        if (written > 0) {
+            totalBytesWritten += written
+        }
     }
+
+    return totalBytesWritten
 }
+
 @Throws(IOException::class)
-suspend fun AsynchronousFileChannel.readAsync(byteBuffer: ByteBuffer, position: Long): Int {
+suspend fun AsynchronousFileChannel.writeAsync(
+    byteBuffer: ByteBuffer,
+    positionTracker: PositionTracker
+): Int {
+    var totalBytesWritten = 0
+
+    while (byteBuffer.hasRemaining()) {
+        val written = awaitOperation {
+            write(byteBuffer, positionTracker.next(0), Unit, it)
+        }
+
+        if (written > 0) {
+            totalBytesWritten += written
+            positionTracker.next(written)
+        }
+    }
+
+    return totalBytesWritten
+}
+
+@Throws(IOException::class)
+suspend fun AsynchronousFileChannel.readAsync(byteBuffer: ByteBuffer, position: Long = size()): Int {
     return awaitOperation {
         read(byteBuffer, position, Unit, it)
     }
+}
+
+@Throws(IOException::class)
+suspend fun AsynchronousFileChannel.readAsync(): String {
+    val buffer = ByteBuffer.allocate(this.size().toInt()) // Allocate buffer based on file size
+    var totalBytesRead = 0
+
+    while (buffer.hasRemaining()) {
+        val bytesRead = awaitOperation { read(buffer, totalBytesRead.toLong(), Unit, it) }
+        if (bytesRead == -1) break // End of file
+        totalBytesRead += bytesRead
+    }
+
+    buffer.flip() // Prepare buffer for reading
+    return Charsets.UTF_8.decode(buffer).toString() // Convert to String
+}
+
+@Throws(IOException::class)
+suspend fun AsynchronousFileChannel.writeAsync(
+    string: String,
+    positionTracker: PositionTracker
+): Int {
+    if (string.isEmpty()) return 0
+    return writeAsync(string.toByteBuffer(), positionTracker)
 }
 
 
@@ -92,6 +151,20 @@ suspend fun AsynchronousSocketChannel.readAsync(length: Int): String {
 
     buffer.flip()
     return String(buffer.array(), 0, buffer.limit(), Charsets.UTF_8)
+
+}
+
+@Throws(IOException::class)
+suspend fun AsynchronousSocketChannel.readByteAsync(
+    byteBuffer: ByteBuffer = ByteBuffer.allocate(1)
+): Byte? {
+    byteBuffer.clear()
+    val read = awaitOperation<Int> {
+        read(byteBuffer, Unit, it)
+    }
+    if (read <= 0) return null
+    byteBuffer.flip()
+    return byteBuffer.get()
 
 }
 

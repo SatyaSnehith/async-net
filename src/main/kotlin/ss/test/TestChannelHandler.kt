@@ -11,9 +11,8 @@ class TestChannelHandler(
 ): ChannelHandler {
     private val commands = """
         Available Commands:
-        Any message
         s:  - Stop server
-        h:   - Show this help
+        h:  - Show this help
         """.trimIndent()
 
     override suspend fun action(

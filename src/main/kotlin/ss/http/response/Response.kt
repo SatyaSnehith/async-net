@@ -1,6 +1,8 @@
 package ss.http.response
 
 import ss.http.Headers
+import ss.http.HttpServer
+
 //import ss.http.HttpServer
 
 open class Response(
@@ -13,12 +15,12 @@ open class Response(
         headers = response.headers
     )
 
-//    val startLine: String
-//        get() = "${HttpServer.VERSION} $statusCode ${StatusMessages[statusCode]}"
-//
-//
-//    override fun toString(): String {
-//        return startLine + '\n' + headers.toString()
-//    }
+    val startLine: String
+        get() = "${HttpServer.VERSION} $statusCode ${StatusMessages[statusCode]}"
+
+
+    override fun toString(): String {
+        return startLine + '\n' + headers.toString()
+    }
 
 }
