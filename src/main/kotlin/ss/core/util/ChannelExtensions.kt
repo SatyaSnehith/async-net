@@ -62,11 +62,14 @@ val AsynchronousSocketChannel.ipAddress: String
         return  remoteAddress.address.hostAddress
     }
 
-suspend fun AsynchronousSocketChannel.readLine(): String {
+suspend fun AsynchronousSocketChannel.readLine(): String? {
     val buffer = ByteBuffer.allocate(1) // Read one byte at a time
     val lineBuffer = mutableListOf<Byte>()
 
-    while (readAsync(buffer) != -1) {
+    while (true) {
+        val read = readAsync(buffer)
+        if (read == -1 && lineBuffer.isEmpty()) return null
+        if (read == -1) break
         buffer.flip()
         val byte = buffer.get()
         buffer.clear()

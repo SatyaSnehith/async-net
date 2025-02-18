@@ -5,7 +5,7 @@ import ss.core.util.logError
 
 open class BaseService {
     private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    val scope = CoroutineScope(Dispatchers.IO + job)
     @Volatile
     var isRunning = false
         private set
@@ -38,7 +38,7 @@ open class BaseService {
         // Override to implement shutdown logic
     }
 
-    protected fun launchTask(block: suspend CoroutineScope.() -> Unit): Job {
+    fun launchTask(block: suspend CoroutineScope.() -> Unit): Job {
         return scope.launch {
             supervisorScope {
                 block()

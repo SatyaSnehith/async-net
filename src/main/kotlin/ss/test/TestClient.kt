@@ -7,6 +7,6 @@ class TestClient(
     port: Int,
 ): Client(host, port) {
     init {
-        channelHandlers.add(TestChannelHandler())
+        channelHandlers.add(TestChannelHandler(this))
     }
 } 

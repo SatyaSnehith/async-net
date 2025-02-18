@@ -23,7 +23,7 @@ open class NetworkEndpoint: BaseService() {
 
                     ChannelHandler.Result.STOP -> {
                         log("Handler requested stop")
-                        stop()
+                        channel.close()
                         return
                     }
 
