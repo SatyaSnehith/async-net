@@ -35,7 +35,7 @@ class HttpConnectionHandler: ChannelHandler {
         val request = try {
             channel.readRequest()
         } catch (e: Exception) {
-            println("ERROR readRequest ${e.message}")
+            println("ERROR readRequest ${e.message} $e")
             channel.sendResponse(
                 response = StringResponse(
                     statusCode = 400,
@@ -195,7 +195,7 @@ class HttpConnectionHandler: ChannelHandler {
 
         while (true) {
             val line = readLine() ?: break
-            if (line.isEmpty()) break
+            if (line.isBlank()) break
             println("readHeaders $line")
             headers.add(line)
         }

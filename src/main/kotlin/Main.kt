@@ -3,6 +3,7 @@ import ss.http.HttpServer
 import ss.http.response.StringResponse
 import ss.http.util.FileUtil
 import ss.test.TestConfig
+import java.io.File
 
 fun main(args: Array<String>) {
 //    testMain(args)
@@ -25,7 +26,9 @@ fun startServer() = runBlocking {
 //        File("new.txt").createNewFile()
 
         static(
-            fileMap = FileUtil.mapFromFolder("")
+            fileMap = FileUtil.mapFromFolder("").apply {
+                println(this)
+            }
         )
         get("/dsa") {
             StringResponse(
