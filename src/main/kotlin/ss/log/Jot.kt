@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 class Jot(
     val id: Long = IdGenerator.nextId(),
     var tag: String = "Default",
-    var type: String = "String",                           // String, HttJot, Boolean, Int, Long, Float, Double
+    var type: String = "String",                           // String, HttpLog, Boolean, Int, Long, Float, Double
     var level: String = "INFO",                          // "INFO", "ERROR", "DEBUG"
     var metadata: Map<String, String>? = null,
     var threadName: String? = null,
@@ -14,7 +14,7 @@ class Jot(
     var time: Long = -1,
 
     var string: String? = null,
-    var http: HttJot? = null,
+    var http: HttpLog? = null,
     var boolean: Boolean? = null,
     var int: Int? = null,
     var long: Long? = null,

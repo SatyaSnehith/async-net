@@ -3,7 +3,7 @@ package ss.log
 import kotlinx.serialization.Serializable
 
 @Serializable
-class HttJot(
+class HttpLog(
     var url: String,
     var method: String,
     var request: HttpRequestLog,

@@ -9,6 +9,7 @@ import ss.http.request.*
 import ss.http.response.*
 import ss.http.util.FakeAsynchronousFileChannel
 import ss.http.util.IOUtil
+import ss.http.util.readHeaders
 import java.io.File
 import java.nio.channels.AsynchronousSocketChannel
 import kotlin.jvm.Throws
@@ -163,7 +164,6 @@ class HttpConnectionHandler: ChannelHandler {
                 )
             }
         }
-        close()
     }
 
     suspend fun AsynchronousSocketChannel.createRequest(): Request {
@@ -188,18 +188,6 @@ class HttpConnectionHandler: ChannelHandler {
             version = version,
             headers = headers
         )
-    }
-
-    private suspend fun AsynchronousSocketChannel.readHeaders(): Headers {
-        val headers = Headers()
-
-        while (true) {
-            val line = readLine() ?: break
-            if (line.isBlank()) break
-            println("readHeaders $line")
-            headers.add(line)
-        }
-        return headers
     }
 
     fun static(

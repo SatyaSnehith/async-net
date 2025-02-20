@@ -1,5 +1,6 @@
 package ss.log
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -39,9 +40,9 @@ fun Jot.string(string: String): Jot = apply {
     this.type = "String"
 }
 
-fun Jot.http(http: HttJot): Jot = apply {
+fun Jot.http(http: HttpLog): Jot = apply {
     this.http = http
-    this.type = "HttJot"
+    this.type = "HttpLog"
 }
 
 fun Jot.boolean(boolean: Boolean): Jot = apply {
@@ -69,14 +70,26 @@ fun Jot.double(double: Double): Jot = apply {
     this.type = "Double"
 }
 
-fun Jot.toJson(): String = Json.encodeToString(this)
+val JotJson = Json {
+    encodeDefaults = true
+    ignoreUnknownKeys = true
+    explicitNulls = false
+}
+
+fun Jot.toJson(): String = JotJson.encodeToString(this)
+
+fun Collection<Jot>.toJson(): String = JotJson.encodeToString(this)
+
+fun String.toJot(): Jot = JotJson.decodeFromString(this)
 
 fun Jot.send() {
     if (JotEnabled) {
         time = System.currentTimeMillis()
         threadName = Thread.currentThread().name
-//        if (stackTrace == null) stackTrace = Thread.currentThread().stackTrace.joinToString("\n")
-
+        runBlocking {
+            println("client jot send")
+            JotClient("localhost").send(this@send)
+        }
     }
 }
 

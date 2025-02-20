@@ -8,13 +8,16 @@ private const val ContentDispositionName = "name="
 private const val ContentDispositionFileName = "filename="
 
 
-val Headers.contentType: ContentType?
+var Headers.contentType: ContentType?
     get() {
         val contentTypeValue = get(Headers.ContentType) ?: return null
         val parts = contentTypeValue.splitAndTrim(';')
         if (parts.isEmpty()) return null
         val mimeType = parts[0]
         return ContentType.entries.find { it.mime == mimeType }
+    }
+    set(value) {
+        value?.mime?.let { set(Headers.ContentType, it) }
     }
 
 val Headers.boundary: String?
@@ -27,9 +30,12 @@ val Headers.boundary: String?
         return "--" + contentTypeValue.substring(boundaryPos + 9)
     }
 
-val Headers.contentLength: Long?
+var Headers.contentLength: Long?
     get() {
         return get(Headers.ContentLength)?.toLongOrNull()
+    }
+    set(value) {
+        value?.toString()?.let { set(Headers.ContentLength, it) }
     }
 
 val Request.isPost: Boolean

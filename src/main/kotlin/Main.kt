@@ -2,13 +2,26 @@ import kotlinx.coroutines.runBlocking
 import ss.http.HttpServer
 import ss.http.response.StringResponse
 import ss.http.util.FileUtil
+import ss.log.*
 import ss.test.TestConfig
-import java.io.File
 
 fun main(args: Array<String>) {
 //    testMain(args)
-    startServer()
+//    startServer()
+
+    if (args.firstOrNull() == "s") {
+        jotServer()
+    }
+    if (args.firstOrNull() == "c") {
+        println("client start")
+        Jot().debug().tag("client").string("Test").send()
+    }
 }
+
+fun jotServer() = runBlocking {
+    JotServer().start()
+}
+
 fun startServer() = runBlocking {
     println("HttpServer")
     val server = HttpServer(TestConfig.DEFAULT_PORT)
