@@ -1,6 +1,5 @@
 package ss.core.util
 
-import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousFileChannel
@@ -29,20 +28,20 @@ suspend fun <T> awaitOperation(
     }
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.writeAsync(byteBuffer: ByteBuffer): Int {
     return awaitOperation {
         write(byteBuffer, Unit, it)
     }
 }
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readAsync(byteBuffer: ByteBuffer): Int {
     return awaitOperation {
         read(byteBuffer, Unit, it)
     }
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.writeAsync(
     byteBuffer: ByteBuffer,
     position: Long
@@ -62,7 +61,7 @@ suspend fun AsynchronousFileChannel.writeAsync(
     return totalBytesWritten
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.writeAsync(
     byteBuffer: ByteBuffer,
     positionTracker: PositionTracker
@@ -83,14 +82,14 @@ suspend fun AsynchronousFileChannel.writeAsync(
     return totalBytesWritten
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.readAsync(byteBuffer: ByteBuffer, position: Long = size()): Int {
     return awaitOperation {
         read(byteBuffer, position, Unit, it)
     }
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.readAsync(): String {
     val buffer = ByteBuffer.allocate(this.size().toInt()) // Allocate buffer based on file size
     var totalBytesRead = 0
@@ -105,7 +104,7 @@ suspend fun AsynchronousFileChannel.readAsync(): String {
     return Charsets.UTF_8.decode(buffer).toString() // Convert to String
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.writeAsync(
     string: String,
     positionTracker: PositionTracker
@@ -140,7 +139,7 @@ suspend fun AsynchronousSocketChannel.readLine(): String? {
     return String(lineBuffer.toByteArray(), Charsets.UTF_8)
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readAsync(length: Int): String {
     val buffer = ByteBuffer.allocate(length)
 
@@ -154,7 +153,7 @@ suspend fun AsynchronousSocketChannel.readAsync(length: Int): String {
 
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readByteAsync(
     byteBuffer: ByteBuffer = ByteBuffer.allocate(1)
 ): Byte? {
@@ -168,7 +167,7 @@ suspend fun AsynchronousSocketChannel.readByteAsync(
 
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readAsync(): String {
     val buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE)
     val result = StringBuilder()
@@ -187,7 +186,7 @@ suspend fun AsynchronousSocketChannel.readAsync(): String {
     return result.toString()
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.writeAsync(string: String): Int {
     val buffer = string.toByteBuffer()
     var totalBytesWritten = 0
@@ -201,7 +200,7 @@ suspend fun AsynchronousSocketChannel.writeAsync(string: String): Int {
     return totalBytesWritten
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.writeLine(
     line: String = "",
     lineSeparator: String = CRLF
@@ -213,7 +212,7 @@ fun String.toByteBuffer(charset: Charset = Charsets.UTF_8): ByteBuffer {
     return ByteBuffer.wrap(this.toByteArray(charset))
 }
 
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.transferToFile(
     fileChannel: AsynchronousFileChannel,
     bufferSize: Int = 8192,
@@ -245,7 +244,7 @@ suspend fun AsynchronousSocketChannel.transferToFile(
 }
 
 // Transfer data from AsynchronousFileChannel to AsynchronousSocketChannel
-@Throws(IOException::class)
+@Throws(Exception::class)
 suspend fun AsynchronousFileChannel.transferToSocket(
     socketChannel: AsynchronousSocketChannel,
     bufferSize: Int = 8192,

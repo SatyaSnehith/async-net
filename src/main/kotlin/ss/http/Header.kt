@@ -9,7 +9,7 @@ class Headers {
         val split = header.indexOf(':')
         if (split != -1) {
             values += Pair(header.substring(0, split).trim(), header.substring(split + 1).trim())
-        } else throw IllegalArgumentException()
+        } else throw IllegalArgumentException("error at header $header")
     }
 
     override fun toString(): String {

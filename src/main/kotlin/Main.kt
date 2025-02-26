@@ -1,14 +1,33 @@
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import ss.core.file.FileResource
 import ss.http.HttpServer
 import ss.http.response.StringResponse
-import ss.http.util.FileUtil
 import ss.log.*
 import ss.test.TestConfig
+import java.nio.file.Paths
+import kotlin.io.path.name
+
+val webFiles = listOf(
+    "web/4a508eb5667fb9042644.woff2",
+    "web/4b432532fa948388046f.woff",
+    "web/5c5ff10473ac9b95f049.woff",
+    "web/26c9746e633c989a9b47.woff",
+    "web/bundle.js",
+    "web/bundle.js.map",
+    "web/d2316b3ad57dae5d46c2.woff2",
+    "web/de52a3d93f85dcb8da44.woff2",
+    "web/index.html",
+    "web/styles.css",
+)
 
 fun main(args: Array<String>) {
 //    testMain(args)
-//    startServer()
-
+    startServer()
+//    runBlocking {
+//        println(readResourceFile("web/index.html"))
+//    }
     if (args.firstOrNull() == "s") {
         jotServer()
     }
@@ -16,6 +35,13 @@ fun main(args: Array<String>) {
         println("jot client start")
         Jot().debug().tag("client").string("Test").send()
     }
+}
+
+suspend fun readResourceFile(fileName: String): String = withContext(Dispatchers.IO) {
+    println(Paths.get(ClassLoader.getSystemResource(fileName).file).fileName)
+    val inputStream = ClassLoader.getSystemResourceAsStream(fileName)
+        ?: throw IllegalArgumentException("File not found: $fileName")
+    return@withContext inputStream.bufferedReader().use { it.readText() }
 }
 
 fun jotServer() = runBlocking {
@@ -39,8 +65,9 @@ fun startServer() = runBlocking {
 //        File("new.txt").createNewFile()
 
         static(
-            fileMap = FileUtil.mapFromFolder("").apply {
-                println(this)
+            fileMap = webFiles.associate {
+                val path = Paths.get(ClassLoader.getSystemResource(it).file)
+                "/" + path.name to FileResource.fromPath(path)
             }
         )
         get("/dsa") {

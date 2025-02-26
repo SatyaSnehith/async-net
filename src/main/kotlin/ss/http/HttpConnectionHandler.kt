@@ -65,7 +65,7 @@ class HttpConnectionHandler: ChannelHandler {
         channel.sendResponse(
             response = response,
         )
-        return ChannelHandler.Result.CONTINUE
+        return ChannelHandler.Result.STOP
     }
 
 
@@ -192,7 +192,7 @@ class HttpConnectionHandler: ChannelHandler {
     }
 
     fun static(
-        fileMap: HashMap<String, FileResource>,
+        fileMap: Map<String, FileResource>,
     ) {
         for ((path, file) in fileMap) {
             if (path == "/index.html") {

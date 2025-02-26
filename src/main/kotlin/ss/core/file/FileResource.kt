@@ -2,7 +2,6 @@ package ss.core.file
 
 import java.io.File
 import java.nio.channels.AsynchronousFileChannel
-import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -33,11 +32,11 @@ abstract class FileResource(
             return object: FileResource(path.name) {
 
                 override fun openWriteChannel(): AsynchronousFileChannel {
-                    return AsynchronousFileChannel.open(path, StandardOpenOption.READ)
+                    return AsynchronousFileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
                 }
 
                 override fun openReadChannel(): AsynchronousFileChannel {
-                    return AsynchronousFileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+                    return AsynchronousFileChannel.open(path, StandardOpenOption.READ)
                 }
 
                 override fun length(): Long {
