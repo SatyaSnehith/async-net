@@ -14,8 +14,10 @@ open class NetworkEndpoint: BaseService() {
 
             try {
                 if (!channel.isOpen) break
-
-                when (handler.action(channel)) {
+                val start = System.currentTimeMillis()
+                val res = handler.action(channel)
+                println("Time ${System.currentTimeMillis() - start}")
+                when (res) {
                     ChannelHandler.Result.CONTINUE -> {
                         // Move to next handler
                         currentHandlerIndex++

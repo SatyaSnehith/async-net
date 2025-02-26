@@ -11,6 +11,7 @@ import ss.http.util.FakeAsynchronousFileChannel
 import ss.http.util.IOUtil
 import ss.http.util.readHeaders
 import java.io.File
+import java.lang.StringBuilder
 import java.nio.channels.AsynchronousSocketChannel
 import kotlin.jvm.Throws
 
@@ -32,7 +33,7 @@ class HttpConnectionHandler: ChannelHandler {
     val fileSender = FileSender()
 
     override suspend fun action(channel: AsynchronousSocketChannel): ChannelHandler.Result {
-
+        val start = System.currentTimeMillis()
         val request = try {
             channel.readRequest()
         } catch (e: Exception) {
@@ -44,6 +45,8 @@ class HttpConnectionHandler: ChannelHandler {
                 ),
             )
             return ChannelHandler.Result.CONTINUE
+        } finally {
+            println("Time READ ${System.currentTimeMillis() - start}")
         }
 
         val path = request.path
@@ -71,6 +74,8 @@ class HttpConnectionHandler: ChannelHandler {
 
     @Throws(Exception::class)
     suspend fun AsynchronousSocketChannel.readRequest(): Request {
+        val r = readAsync()
+        println("REQUEST $r")
         var request = createRequest()
         println("START")
         println(request)
@@ -149,11 +154,20 @@ class HttpConnectionHandler: ChannelHandler {
     }
 
     suspend fun AsynchronousSocketChannel.sendResponse(response: Response) {
-        writeLine(response.startLine)
+        val responseString = StringBuilder()
+        responseString.append(response.startLine)
+        responseString.append(CRLF)
         for (header in response.headers.lines()) {
-            writeLine(header)
+            responseString.append(header)
+            responseString.append(CRLF)
         }
-        writeLine()
+        responseString.append(CRLF)
+        writeAsync(responseString.toString())
+//        writeLine(response.startLine)
+//        for (header in response.headers.lines()) {
+//            writeLine(header)
+//        }
+//        writeLine()
         when(response) {
             is StringResponse -> {
                 writeAsync(response.body)
@@ -172,13 +186,13 @@ class HttpConnectionHandler: ChannelHandler {
         val method: String
         val path: String
         val version: String
-        val tokens = rLine?.split(' ')?.toTypedArray().orEmpty()
-        if (tokens.size == 3) {
+        val tokens = rLine?.split(' ')
+        if (tokens?.size == 3) {
             method = tokens[0]
             path = tokens[1]
             version = tokens[2]
         } else {
-            throw Exception(rLine)
+            throw Exception("create request start line $rLine")
         }
 
         val headers = readHeaders()
@@ -197,8 +211,24 @@ class HttpConnectionHandler: ChannelHandler {
         for ((path, file) in fileMap) {
             if (path == "/index.html") {
                 get("/") {
-                    FileResponse(
-                        body = file
+                    StringResponse(
+                        body = """
+                            <!DOCTYPE html>
+                            <html>
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'>
+                                    <title>WebShare</title>
+                                    <link rel="stylesheet" href="styles.css">
+                                    <script defer src="bundle.js"></script>
+                                </head>
+                                <body class="darkTheme">
+                                </body>
+                            </html>
+                        """.trimIndent(),
+                        headers = Headers().apply {
+                            set(Headers.ContentType, "text/html")
+                        }
                     )
 
                 }

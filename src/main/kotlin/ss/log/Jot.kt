@@ -12,6 +12,7 @@ class Jot(
     var threadName: String? = null,
     var stackTrace: String? = null,
     var time: Long = -1,
+    var duration: Long = -1,
 
     var string: String? = null,
     var http: HttpLog? = null,

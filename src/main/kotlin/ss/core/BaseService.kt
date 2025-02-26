@@ -5,7 +5,8 @@ import ss.core.util.logError
 
 open class BaseService {
     private val job = SupervisorJob()
-    val scope = CoroutineScope(Dispatchers.IO + job)
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+
     @Volatile
     var isRunning = false
         private set

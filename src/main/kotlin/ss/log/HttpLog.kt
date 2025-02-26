@@ -16,10 +16,10 @@ class HttpLog(
 
 @Serializable
 class HttpRequestLog(
-    var headers: Map<String, String>,
-    var body: String? = null,         // Request body (optional for GET, required for POST, etc.)
+    var method: String? = null,
     var queryParams: Map<String, String>? = null, // Query parameters (for logging GET requests)
-    var method: String? = null
+    var headers: Map<String, String>,
+    var body: String? = null         // Request body (optional for GET, required for POST, etc.)
 )
 
 @Serializable
