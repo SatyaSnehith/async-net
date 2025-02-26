@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class Jot(
-    val id: Long = IdGenerator.nextId(),
+    var id: Long = IdGenerator.nextId(),
     var tag: String = "Default",
     var type: String = "String",                           // String, HttpLog, Boolean, Int, Long, Float, Double
     var level: String = "INFO",                          // "INFO", "ERROR", "DEBUG"

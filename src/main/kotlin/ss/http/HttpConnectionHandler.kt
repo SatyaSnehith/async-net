@@ -46,15 +46,16 @@ class HttpConnectionHandler: ChannelHandler {
             return ChannelHandler.Result.CONTINUE
         }
 
+        val path = request.path
         val requestHandler = requestHandlers.find {
-            it.path == request.path &&
+            it.path == path &&
             (it.method.name == request.method || request.isHead)
         }
         println("requestHandler $requestHandler")
 
         var response = requestHandler?.onRequest(request) ?: StringResponse(
             statusCode = 400,
-            body = "Bad Request\n${request.path} does not exist with ${request.method} method"
+            body = "Bad Request\n${path} does not exist with ${request.method} method"
         )
 
         if (request.isHead) { // send only headers
@@ -86,7 +87,7 @@ class HttpConnectionHandler: ChannelHandler {
                         readAsync()
                     }
 //                    Logger.line(body)
-                    StringRequest(request, body)
+                    request.copy(text = body)
                 }
                 ContentType.MULTI_PART -> {
                     val boundary = headers.boundary
@@ -136,7 +137,7 @@ class HttpConnectionHandler: ChannelHandler {
                         }
 //                        Logger.line("$boundary--")
 //                        Logger.divider("END")
-                        MultipartRequest(request, formDataList)
+                        request.copy(multiPart =  formDataList)
                     } else throw Exception("Not a boundary $line")
                 }
                 else -> {

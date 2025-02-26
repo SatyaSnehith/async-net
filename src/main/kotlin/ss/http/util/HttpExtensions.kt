@@ -6,7 +6,6 @@ import ss.core.util.writeLine
 import ss.http.Headers
 import ss.http.HttpServer
 import ss.http.request.Request
-import ss.http.request.StringRequest
 import ss.http.request.contentLength
 import ss.http.response.Response
 import ss.http.response.StringResponse
@@ -25,16 +24,13 @@ suspend fun AsynchronousSocketChannel.readHeaders(): Headers {
 
 suspend fun AsynchronousSocketChannel.sendRequest(request: Request) {
     writeLine("${request.method} ${request.uri} ${HttpServer.VERSION}")
+    request.text?.length?.toLong()?.let { len ->
+        request.headers.contentLength = len
+    }
     request.headers.lines().forEach { line ->
         writeLine(line)
     }
     writeLine()
-}
-
-suspend fun AsynchronousSocketChannel.sendRequest(request: StringRequest) {
-    request.headers.contentLength = request.body.length.toLong()
-    sendRequest(request as Request)
-    writeAsync(request.body)
 }
 
 suspend fun AsynchronousSocketChannel.readResponse(): Response {

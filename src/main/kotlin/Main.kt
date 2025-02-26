@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
         jotServer()
     }
     if (args.firstOrNull() == "c") {
-        println("client start")
+        println("jot client start")
         Jot().debug().tag("client").string("Test").send()
     }
 }

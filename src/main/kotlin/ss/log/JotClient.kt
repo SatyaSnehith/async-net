@@ -5,7 +5,6 @@ import ss.http.HttpClient
 import ss.http.HttpServer
 import ss.http.request.ContentType
 import ss.http.request.Request
-import ss.http.request.StringRequest
 import ss.http.request.contentType
 
 class JotClient(
@@ -18,14 +17,12 @@ class JotClient(
         val headers = Headers()
         headers.contentType = ContentType.JSON
         send(
-            StringRequest(
-                Request(
-                    "POST",
-                    "/add",
-                    HttpServer.VERSION,
-                    headers
-                ),
-                jot.toJson()
+            Request(
+                method = "POST",
+                uri = "/add",
+                version = HttpServer.VERSION,
+                headers = headers,
+                text = jot.toJson()
             )
         )
     }

@@ -87,7 +87,7 @@ fun Jot.send() {
         time = System.currentTimeMillis()
         threadName = Thread.currentThread().name
         runBlocking {
-            println("client jot send")
+            println("client jot send ${this@send.time}")
             JotClient("localhost").send(this@send)
         }
     }

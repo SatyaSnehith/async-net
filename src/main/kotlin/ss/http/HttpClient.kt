@@ -2,7 +2,7 @@ package ss.http
 
 import ss.core.BaseService
 import ss.core.util.awaitOperation
-import ss.http.request.StringRequest
+import ss.http.request.Request
 import ss.http.response.Response
 import ss.http.util.readResponse
 import ss.http.util.sendRequest
@@ -24,7 +24,7 @@ open class HttpClient(
         }
     }
 
-    suspend fun send(request: StringRequest): Response? {
+    suspend fun send(request: Request): Response? {
         start()
         println("HttpClient send channel: ${channel?.isOpen}")
         if (channel?.isOpen == true) {

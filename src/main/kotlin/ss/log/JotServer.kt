@@ -1,7 +1,6 @@
 package ss.log
 
 import ss.http.HttpServer
-import ss.http.request.StringRequest
 import ss.http.response.StringResponse
 
 class JotServer: HttpServer(1112) {
@@ -10,10 +9,10 @@ class JotServer: HttpServer(1112) {
     init {
         addRoutes {
             post("/add") { request ->
-                (request as? StringRequest)
-                    ?.body
+                val log = request
+                    .text
                     ?.toJot() ?: return@post StringResponse("Error")
-                val log = Jot().debug().stackTrace().tag("API").string("Add")
+                log.id = IdGenerator.nextId()
                 logs.add(log)
                 println("Log: ${log.id} ${log.type}")
                 StringResponse("Success")
