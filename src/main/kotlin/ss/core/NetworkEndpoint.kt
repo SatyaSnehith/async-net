@@ -48,8 +48,8 @@ open class NetworkEndpoint: BaseService() {
         }
 
         // All handlers completed or were skipped
-        if (channel.isOpen) {
-            channel.close()
-        }
+//        if (channel.isOpen) {
+//            channel.close()
+//        }
     }
 }

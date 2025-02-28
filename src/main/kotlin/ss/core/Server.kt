@@ -14,7 +14,7 @@ abstract class Server(
     private var serverChannel: AsynchronousServerSocketChannel? = null
 
     override suspend fun onStart() {
-        serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(port))
+        serverChannel = AsynchronousServerSocketChannel.open().bind(InetSocketAddress(port), 200)
         log("Server start on port: $port")
         while (isRunning) {
             val clientChannel = awaitOperation<AsynchronousSocketChannel> {

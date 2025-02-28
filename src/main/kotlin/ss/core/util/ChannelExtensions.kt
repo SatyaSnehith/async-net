@@ -91,7 +91,7 @@ suspend fun AsynchronousFileChannel.readAsync(byteBuffer: ByteBuffer, position: 
 
 @Throws(Exception::class)
 suspend fun AsynchronousFileChannel.readAsync(): String {
-    val buffer = ByteBuffer.allocate(this.size().toInt()) // Allocate buffer based on file size
+    val buffer = ByteBuffer.allocateDirect(this.size().toInt()) // Allocate buffer based on file size
     var totalBytesRead = 0
 
     while (buffer.hasRemaining()) {
@@ -121,7 +121,7 @@ val AsynchronousSocketChannel.ipAddress: String
     }
 
 suspend fun AsynchronousSocketChannel.readLine(): String? {
-    val buffer = ByteBuffer.allocate(1) // Read one byte at a time
+    val buffer = ByteBuffer.allocateDirect(1) // Read one byte at a time
     val lineBuffer = mutableListOf<Byte>()
 
     while (true) {
@@ -141,7 +141,7 @@ suspend fun AsynchronousSocketChannel.readLine(): String? {
 
 @Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readAsync(length: Int): String {
-    val buffer = ByteBuffer.allocate(length)
+    val buffer = ByteBuffer.allocateDirect(length)
 
     while (buffer.hasRemaining()) {
         val bytesRead = awaitOperation { read(buffer, Unit, it) }
@@ -155,7 +155,7 @@ suspend fun AsynchronousSocketChannel.readAsync(length: Int): String {
 
 @Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readByteAsync(
-    byteBuffer: ByteBuffer = ByteBuffer.allocate(1)
+    byteBuffer: ByteBuffer = ByteBuffer.allocateDirect(1)
 ): Byte? {
     byteBuffer.clear()
     val read = awaitOperation<Int> {
@@ -169,7 +169,7 @@ suspend fun AsynchronousSocketChannel.readByteAsync(
 
 @Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.readAsync(): String {
-    val buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE)
+    val buffer = ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE)
     val result = StringBuilder()
     
     while (true) {
@@ -215,10 +215,10 @@ fun String.toByteBuffer(charset: Charset = Charsets.UTF_8): ByteBuffer {
 @Throws(Exception::class)
 suspend fun AsynchronousSocketChannel.transferToFile(
     fileChannel: AsynchronousFileChannel,
-    bufferSize: Int = 8192,
+    bufferSize: Int = DEFAULT_BUFFER_SIZE,
     onProgress: (Long) -> Unit = {}
 ): Long {
-    val buffer = ByteBuffer.allocate(bufferSize)
+    val buffer = ByteBuffer.allocateDirect(bufferSize)
     var position = 0L
     var totalBytesTransferred = 0L
 
@@ -247,10 +247,10 @@ suspend fun AsynchronousSocketChannel.transferToFile(
 @Throws(Exception::class)
 suspend fun AsynchronousFileChannel.transferToSocket(
     socketChannel: AsynchronousSocketChannel,
-    bufferSize: Int = 8192,
+    bufferSize: Int = DEFAULT_BUFFER_SIZE,
     onProgress: (Long) -> Unit = {}
 ): Long {
-    val buffer = ByteBuffer.allocate(bufferSize)
+    val buffer = ByteBuffer.allocateDirect(bufferSize)
     var position = 0L
     var totalBytesTransferred = 0L
 

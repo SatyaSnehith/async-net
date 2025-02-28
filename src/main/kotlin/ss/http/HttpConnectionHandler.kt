@@ -74,8 +74,6 @@ class HttpConnectionHandler: ChannelHandler {
 
     @Throws(Exception::class)
     suspend fun AsynchronousSocketChannel.readRequest(): Request {
-        val r = readAsync()
-        println("REQUEST $r")
         var request = createRequest()
         println("START")
         println(request)

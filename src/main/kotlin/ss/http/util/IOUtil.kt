@@ -22,7 +22,7 @@ object IOUtil {
         val boundaryBytes = boundary.toByteArray()
         var foundBoundaryIndex = 0
         val suspectedBoundary = ArrayList<Byte>()
-        val byteBuffer = ByteBuffer.allocate(1)
+        val byteBuffer = ByteBuffer.allocateDirect(1)
         var readCount: Long = 1
         val positionTracker = PositionTracker()
         var read: Byte = socketChannel.readByteAsync(byteBuffer) ?: return FormDataInfo(

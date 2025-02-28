@@ -6,6 +6,7 @@ import ss.http.HttpServer
 import ss.http.response.StringResponse
 import ss.log.*
 import ss.test.TestConfig
+import ss.test.TestReaderServer
 import java.nio.file.Paths
 import kotlin.io.path.name
 
@@ -24,17 +25,18 @@ val webFiles = listOf(
 
 fun main(args: Array<String>) {
 //    testMain(args)
-    startServer()
+//    startServer()
+    TestReaderServer.start()
 //    runBlocking {
 //        println(readResourceFile("web/index.html"))
 //    }
-    if (args.firstOrNull() == "s") {
-        jotServer()
-    }
-    if (args.firstOrNull() == "c") {
-        println("jot client start")
-        Jot().debug().tag("client").string("Test").send()
-    }
+//    if (args.firstOrNull() == "s") {
+//        jotServer()
+//    }
+//    if (args.firstOrNull() == "c") {
+//        println("jot client start")
+//        Jot().tag("client").debug("Test")
+//    }
 }
 
 suspend fun readResourceFile(fileName: String): String = withContext(Dispatchers.IO) {
