@@ -92,19 +92,22 @@ class AsynchronousSocketReader(
 
                     is TransferState.ReadState.BodyRead -> {
                         val total = request?.headers?.contentLength ?: 0
-                        println("total $total")
+
+                        val bytes = ByteArray(buffer.remaining())
+                        buffer.get(bytes)
+                        state.length += bytes.size
+                        processBody(bytes)
+
+                        println("total $total read ${state.length}")
                         if (state.length >= total) {
                             this@AsynchronousSocketReader.state = TransferState.WriteState.HeaderWrite()
                             buffer = ("HTTP/1.1 200 Ok" + CRLF + "Content-Length: 7" + CRLF + CRLF).toByteBuffer()
                             write()
+                        } else {
+                            buffer.clear()
+                            read()
                         }
 
-                        val bytes = ByteArray(buffer.remaining())
-                        buffer.get(bytes)
-                        processBody(bytes)
-
-                        buffer.clear()
-                        read()
                     }
 
                     else -> {}

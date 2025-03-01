@@ -58,4 +58,33 @@ class Request(
         ).joinToString("\n")
     }
 
+    companion object {
+        fun format(string: String): Request? {
+            val lines = string.split('\n')
+            var request: Request? = null
+            var isStart = true
+            for (line in lines) {
+                if (isStart) {
+                    val tokens = line.split(' ')
+                    val method: String
+                    val path: String
+                    val version: String
+                    if (tokens.size == 3) {
+                        method = tokens[0]
+                        path = tokens[1]
+                        version = tokens[2]
+                    } else {
+                        throw Exception("create request start line")
+                    }
+                    request = Request(method, path, version)
+                    isStart = false
+                } else {
+                    request?.headers?.add(line)
+                }
+            }
+            return request
+        }
+
+    }
+
 }
