@@ -8,7 +8,7 @@ class Headers {
     fun add(header: String) {
         val split = header.indexOf(':')
         if (split != -1) {
-            values += Pair(header.substring(0, split).trim(), header.substring(split + 1).trim())
+            values += Pair(header.substring(0, split), header.substring(split + 1).trim())
         } else throw IllegalArgumentException("error at header $header")
     }
 

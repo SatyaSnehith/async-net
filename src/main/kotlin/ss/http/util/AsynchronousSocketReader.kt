@@ -2,6 +2,7 @@ package ss.http.util
 
 import ss.core.util.CRLF
 import ss.core.util.toByteBuffer
+import ss.http.Headers
 import ss.http.request.Request
 import ss.http.request.contentLength
 import java.nio.ByteBuffer
@@ -10,87 +11,134 @@ import java.nio.channels.CompletionHandler
 
 val LFByte = '\n'.code.toByte()
 
-sealed class ReadType {
-    data object Line: ReadType()
-    class Length(var length: Long): ReadType()
+sealed class TransferState {
 
+    sealed class ReadState : TransferState() {
+        class HeaderRead(var isStartRead: Boolean = false) : ReadState()
+        class BodyRead(var length: Long = 0) : ReadState()
+    }
+
+    sealed class WriteState : TransferState() {
+        class HeaderWrite() : WriteState()
+        class BodyWrite() : WriteState()
+    }
 }
 
 class AsynchronousSocketReader(
     private val channel: AsynchronousSocketChannel
-) : CompletionHandler<Int, Any> {
+) : CompletionHandler<Int, TransferState> {
 
-    private val buffer = ByteBuffer.allocateDirect(DEFAULT_BUFFER_SIZE)
+    private var buffer = ByteBuffer.allocateDirect(1024)
 
     var request: Request? = null
 
-    private var readType: ReadType = ReadType.Line
-
-    private var lineCount = 0
-
-    var bodyLength = 0L
-
-    private val byteArray = mutableListOf<Byte>()
+    private var state: TransferState = TransferState.ReadState.HeaderRead()
 
     fun start() {
         read()
     }
 
     private fun read() {
-        channel.read(buffer, Unit, this)
+        channel.read(buffer, state, this)
     }
+
+    private fun write() {
+        channel.write(buffer, state, this)
+    }
+
 
     fun stop() {
 
     }
 
-    override fun completed(bytesRead: Int?, a: Any?) {
+    override fun completed(bytesRead: Int?, state: TransferState?) {
+        println("bytesRead $bytesRead")
         if (bytesRead == -1) {
             return
         }
-        buffer.flip()
-        when(readType) {
-            ReadType.Line -> {
-                while (buffer.hasRemaining()) {
-                    val byte = buffer.get()
-                    if (byte == LFByte) {
-                        val isLast = !onLineRead(String(byteArray.toByteArray()))
-                        if (isLast) {
-                            val bytes = ByteArray(buffer.remaining())
-                            buffer.get(bytes)
-                            onReadBody(bytes)
-                            break
+        when(state) {
+            is TransferState.ReadState -> {
+                buffer.flip()
+                when (state) {
+                    is TransferState.ReadState.HeaderRead -> {
+                        val byteArray = ByteArray(bytesRead ?: buffer.remaining())
+                        var index = 0
+                        var lineStartIndex = 0
+                        while (buffer.hasRemaining()) {
+                            val byte = buffer.get()
+                            if (byte == LFByte) {
+                                val lineLength = index - lineStartIndex - 1
+                                println("Line $lineLength")
+                                if (lineLength > 1) {
+                                    processHeader(String(byteArray, lineStartIndex, lineLength), state.isStartRead)
+                                    println("Line $lineStartIndex $index")
+                                    lineStartIndex = index + 1
+                                    state.isStartRead = true
+                                } else {
+                                    val bytes = ByteArray(buffer.remaining())
+                                    buffer.get(bytes)
+                                    println("remaining ${bytes.size}")
+                                    this@AsynchronousSocketReader.state = TransferState.ReadState.BodyRead(bytes.size.toLong())
+                                    processBody(bytes)
+                                    break
+                                }
+                            }
+                            byteArray[index++] = byte
+//                            println("byte ${index - 1} $byte")
                         }
-                        byteArray.clear()
-                    } else {
-                        byteArray.add(byte)
+                        buffer.clear()
+                        read()
                     }
+
+                    is TransferState.ReadState.BodyRead -> {
+                        val total = request?.headers?.contentLength ?: 0
+                        println("total $total")
+                        if (state.length >= total) {
+                            this@AsynchronousSocketReader.state = TransferState.WriteState.HeaderWrite()
+                            buffer = ("HTTP/1.1 200 Ok" + CRLF + "Content-Length: 7" + CRLF + CRLF).toByteBuffer()
+                            write()
+                        }
+
+                        val bytes = ByteArray(buffer.remaining())
+                        buffer.get(bytes)
+                        processBody(bytes)
+
+                        buffer.clear()
+                        read()
+                    }
+
+                    else -> {}
                 }
             }
-            is ReadType.Length -> {
-                val bytes = ByteArray(buffer.remaining())
-                buffer.get(bytes)
-                onReadBody(bytes)
+
+            is TransferState.WriteState -> {
+                when (state) {
+                    is TransferState.WriteState.HeaderWrite -> {
+                        buffer = ("SUCCESS").toByteBuffer()
+                        write()
+                    }
+
+                    is TransferState.WriteState.BodyWrite -> {
+                        buffer.clear()
+                        channel.close()
+                    }
+
+                    else -> {}
+                }
             }
+
+            else -> {}
         }
-        buffer.clear()
-        if (channel.isOpen) {
-            read()
-        }
+
     }
 
 
-    override fun failed(e: Throwable?, a: Any?) {
+    override fun failed(e: Throwable?,  state: TransferState?) {
 
     }
 
-    fun onLineRead(line: String): Boolean {
-        if (line.length == 1) {
-            val len = request?.headers?.contentLength
-            readType = ReadType.Length(len ?: -1)
-            return false
-        }
-        if (lineCount == 0) {
+    fun processHeader(line: String, isStartRead: Boolean) {
+        if (!isStartRead) {
             val method: String
             val path: String
             val version: String
@@ -106,26 +154,13 @@ class AsynchronousSocketReader(
         } else if(request != null) {
             request?.headers?.add(line)
         }
-        lineCount++
-        println("AsynchronousSocketReader onLineRead: ${line.length} $line")
-        return true
+        println("AsynchronousSocketReader processHeader: ${line.length} $line")
     }
 
-    fun onReadBody(bytes: ByteArray) {
-        bodyLength += bytes.size.toLong()
-        if (bodyLength >= (readType as ReadType.Length).length) {
-            channel.write(("HTTP/1.1 200 Ok" + CRLF + "Content-Length: 7" + CRLF + CRLF + "SUCCESS").toByteBuffer(), Unit, object : CompletionHandler<Int, Unit> {
-                override fun completed(p0: Int?, p1: Unit?) {
-                    buffer.clear()
-                    channel.close()
-                }
+    fun processBody(bytes: ByteArray) {
+        val line = String(bytes)
+        println("AsynchronousSocketReader processBody: ${line.length} $line")
 
-                override fun failed(p0: Throwable?, p1: Unit?) {
-                }
-
-            })
-
-        }
-        println("AsynchronousSocketReader onReadBody: ${bodyLength} ${(readType as ReadType.Length).length} ${String(bytes)}")
     }
 }
+
