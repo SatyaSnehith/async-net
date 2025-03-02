@@ -7,3 +7,5 @@ enum class ContentType(val mime: String) {
     TEXT("text/plain"),
     XML("application/xml")
 }
+
+val contentTypeMap: Map<String, ContentType> = ContentType.entries.associateBy { it.mime }
