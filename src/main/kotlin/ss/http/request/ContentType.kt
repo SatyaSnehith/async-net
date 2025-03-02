@@ -5,4 +5,5 @@ enum class ContentType(val mime: String) {
     MULTI_PART("multipart/form-data"),
     JSON("application/json"),
     TEXT("text/plain"),
+    XML("application/xml")
 }

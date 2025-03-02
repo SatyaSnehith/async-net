@@ -2,13 +2,13 @@ package ss.http
 
 class Headers {
 
-    val values: MutableMap<String, String> = mutableMapOf()
+    private val values: MutableMap<String, String> = mutableMapOf()
 
     @Throws(IllegalArgumentException::class)
     fun add(header: String) {
         val split = header.indexOf(':')
         if (split != -1) {
-            values += Pair(header.substring(0, split), header.substring(split + 1).trim())
+            values += Pair(header.substring(0, split), header.substring(split + 1).trim('\r', ' '))
         } else throw IllegalArgumentException("error at header $header")
     }
 
