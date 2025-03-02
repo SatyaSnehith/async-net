@@ -38,16 +38,6 @@ var Headers.contentLength: Long?
         value?.toString()?.let { set(Headers.ContentLength, it) }
     }
 
-val Request.isPost: Boolean
-    get() {
-        return method == Method.POST.name
-    }
-
-val Request.isHead: Boolean
-    get() {
-        return method == Method.HEAD.name
-    }
-
 val Headers.contentDisposition: ContentDisposition?
     get() {
         val contentDispositionValue = get(Headers.ContentDisposition) ?: return null
@@ -71,3 +61,12 @@ val Headers.contentDisposition: ContentDisposition?
             fileName = fileName
         )
     }
+
+val Headers.transferEncoding: List<String>?
+    get() {
+        val value = get(Headers.TransferEncoding) ?: return null
+        return value.splitAndTrim(',')
+    }
+
+val Headers.isChunked: Boolean
+    get() = transferEncoding?.contains(Headers.ChunkedTransferEncoding) == true

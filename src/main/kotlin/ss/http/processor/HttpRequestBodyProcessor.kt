@@ -6,12 +6,31 @@ class HttpRequestBodyProcessor(
     private val request: Request
 ) {
 
-    var bodyBytes = ByteArray(0)
+    val isChunked = request.headers.isChunked
 
-    fun process(bytes: ByteArray) {
-        val headers = request.headers
-        val contentLength = headers.contentLength
-        bodyBytes += bytes
+    val headers = request.headers
+
+    val contentLength = headers.contentLength
+
+    val boundary = headers.boundary
+
+    var readLength = 0L
+
+
+    private fun chunkedProcess(bytes: ByteArray): ByteArray? {
+        return bytes
+    }
+
+    fun process(bytes: ByteArray): Boolean {
+        return actualProcess(
+            if (isChunked) chunkedProcess(bytes) ?: return true
+            else bytes
+        )
+    }
+
+    private fun actualProcess(bytes: ByteArray): Boolean {
+        readLength += bytes.size
+        if (readLength == contentLength) return true
         when(request.method) {
             "GET" -> {}
             "POST" -> {
@@ -20,10 +39,9 @@ class HttpRequestBodyProcessor(
                     ContentType.TEXT,
                     ContentType.XML,
                     ContentType.FORM -> {
-
+                        println("body: ${String(bytes)}")
                     }
                     ContentType.MULTI_PART -> {
-                        val boundary = headers.boundary
 
                     }
                     else -> {
@@ -38,6 +56,6 @@ class HttpRequestBodyProcessor(
 
             }
         }
+        return false
     }
-
 }

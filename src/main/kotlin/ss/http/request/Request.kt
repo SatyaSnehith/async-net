@@ -12,30 +12,6 @@ class Request(
     val multiPart: List<FormData>? = null
 ) {
 
-    val path: String
-        get() = uri.substringBefore('?')
-
-    val queries: QueryList
-        get() {
-            val queries = QueryList()
-            val parts = uri.split('?')
-            if (parts.size > 1) {
-                val queryString = parts[1]
-                for (query in queryString.split('&')) {
-                    val equalPos = query.indexOf('=')
-                    if (equalPos == -1) {
-                        queries.add(query to "")
-                    } else {
-                        queries.add(
-                            query.substring(0, equalPos) to
-                            query.substring(equalPos + 1)
-                        )
-                    }
-                }
-            }
-            return queries
-        }
-
     fun copy(
         method: String = this.method,
         uri: String = this.uri,
@@ -53,10 +29,10 @@ class Request(
     )
 
     override fun toString(): String {
-        return listOf(
-            listOf(method, uri, version).joinToString(" "),
-            headers
-        ).joinToString("\n")
+        return (
+            listOf(method, uri, version).joinToString(" ") + "\n" +
+            headers.lines().asSequence().joinToString("\n")
+        )
     }
 
     companion object {
@@ -79,3 +55,44 @@ class Request(
     }
 
 }
+
+val Request.isPost: Boolean
+    get() {
+        return method == Method.POST.name
+    }
+
+val Request.isHead: Boolean
+    get() {
+        return method == Method.HEAD.name
+    }
+
+
+val Request.path: String
+    get() = uri.substringBefore('?')
+
+val Request.queries: QueryList
+    get() {
+        val queries = QueryList()
+        val parts = uri.split('?')
+        if (parts.size > 1) {
+            val queryString = parts[1]
+            for (query in queryString.split('&')) {
+                val equalPos = query.indexOf('=')
+                if (equalPos == -1) {
+                    queries.add(query to "")
+                } else {
+                    queries.add(
+                        query.substring(0, equalPos) to
+                                query.substring(equalPos + 1)
+                    )
+                }
+            }
+        }
+        return queries
+    }
+
+val Request.hasBody: Boolean
+    get() {
+        val length = headers.contentLength
+        return (length != null && length > 0) || headers.isChunked
+    }

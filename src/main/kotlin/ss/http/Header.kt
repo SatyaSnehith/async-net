@@ -1,5 +1,7 @@
 package ss.http
 
+import ss.http.request.ContentDisposition
+
 class Headers {
 
     private val values: MutableMap<String, String> = mutableMapOf()
@@ -74,6 +76,11 @@ class Headers {
 
         const val ContentDispositionTypeInline = "inline"
         const val ContentDispositionTypeAttachment = "attachment"
+
+        const val ChunkedTransferEncoding = "chunked"
+        const val CompressTransferEncoding = "compress"
+        const val DeflateTransferEncoding = "deflate"
+        const val GzipTransferEncoding = "gzip"
 
     }
 }

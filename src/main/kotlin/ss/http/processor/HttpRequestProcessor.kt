@@ -1,5 +1,6 @@
 package ss.http.processor
 
+import ss.http.request.hasBody
 import java.nio.ByteBuffer
 import java.nio.channels.AsynchronousSocketChannel
 import java.nio.channels.CompletionHandler
@@ -33,20 +34,28 @@ class HttpRequestProcessor(
         buffer.flip()
         val bytes = ByteArray(bytesRead)
         buffer.get(bytes)
-        when(state) {
+        val isRequestProcessed = when(state) {
             RequestProcessState.Header -> {
                 val request = headerProcessor.process(bytes)
                 if (request != null) {
-                    bodyProcessor = HttpRequestBodyProcessor(request)
-                    state = RequestProcessState.Body
-                }
+                    if (request.hasBody) {
+                        bodyProcessor = HttpRequestBodyProcessor(request)
+                        val isBodyProcessed = bodyProcessor!!.process(headerProcessor.remainingBodyBytes)
+                        state = RequestProcessState.Body
+                        isBodyProcessed
+                    } else true
+                } else false
             }
             RequestProcessState.Body -> {
                 bodyProcessor?.process(bytes)
             }
         }
-        buffer.clear()
-        read()
+        if (isRequestProcessed) {
+
+        } else {
+            buffer.clear()
+            read()
+        }
     }
 
     override fun failed(e: Throwable?, a: Unit?) {
